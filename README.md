@@ -22,7 +22,7 @@ This project is a containerized automation and monitoring solution built with Fa
 
 ## Project Structure
 
-\`\`\`
+```
 shelly-rebooter/
 ├── Dockerfile
 ├── docker-compose.yml
@@ -40,24 +40,24 @@ shelly-rebooter/
 │       └── bootstrap.bundle.min.js
 └── templates/
     └── index.html
-\`\`\`
+```
 
 ## Setup and Installation
 
 1. **Clone the Repository:**
 
-   \`\`\`bash
+   ```bash
    git clone https://github.com/yourusername/shelly-rebooter.git
    cd shelly-rebooter
-   \`\`\`
+   ```
 
 2. **Initialize the Project:**
 
    Run the initialization script to create the necessary folders, download local assets, and set up environment variable files:
 
-   \`\`\`bash
+   ```bash
    ./init_project.sh
-   \`\`\`
+   ```
 
 3. **Update Environment Variables:**
 
@@ -65,9 +65,9 @@ shelly-rebooter/
 
 4. **Build and Run with Docker Compose:**
 
-   \`\`\`bash
+   ```bash
    docker-compose up -d
-   \`\`\`
+   ```
 
 5. **Access the Web UI:**
 
@@ -77,9 +77,9 @@ shelly-rebooter/
 
 For local development, you can run the FastAPI server directly:
 
-\`\`\`bash
+```bash
 uvicorn main:app --reload --host 0.0.0.0 --port ${PORT}
-\`\`\`
+```
 
 ## License
 
