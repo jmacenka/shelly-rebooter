@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shelly Rebooter Dashboard</title>
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container py-4">
+  <h1 class="mb-4">Shelly Rebooter Dashboard</h1>
+
+  <!-- Current Configuration -->
+  <div class="card mb-4">
+    <div class="card-header">Current Configuration</div>
+    <div class="card-body">
+      <form action="/update-config" method="post">
+        <!-- Row 1: Maximum Attempts and Total Duration -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="max_attempts" class="form-label">Max Attempts</label>
+            <input type="number" class="form-control" name="max_attempts" id="max_attempts" value="{{ config.max_attempts }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="total_duration_str" class="form-label">Total Duration (hh:mm)</label>
+            <input type="text" class="form-control" name="total_duration_str" id="total_duration_str" value="{{ total_duration_str }}" placeholder="e.g., 02:00" required>
+          </div>
+        </div>
+        <!-- Row 2: Check Interval and Wait Time -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="check_interval" class="form-label">Check Interval (sec)</label>
+            <input type="number" class="form-control" name="check_interval" id="check_interval" value="{{ config.check_interval }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="wait_time" class="form-label">Wait Time After Reboot (sec)</label>
+            <input type="number" class="form-control" name="wait_time" id="wait_time" value="{{ config.wait_time }}" required>
+          </div>
+        </div>
+        <!-- Row 3: Shelly IP and Twilio To Number -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="shelly_ip" class="form-label">Shelly IP</label>
+            <input type="text" class="form-control" name="shelly_ip" id="shelly_ip" value="{{ config.shelly_ip }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="twilio_to_number" class="form-label">Twilio To Number</label>
+            <input type="text" class="form-control" name="twilio_to_number" id="twilio_to_number" value="{{ config.twilio_to_number }}" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Update Config</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manual Reboot Trigger -->
+  <div class="mb-4">
+    <form action="/manual-reboot" method="post">
+      <button type="submit" class="btn btn-warning btn-lg w-100">Manual Reboot</button>
+    </form>
+  </div>
+
+  <!-- Logs -->
+  <div class="card">
+    <div class="card-header">Automation Logs</div>
+    <ul class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+      {% for entry in logs %}
+      <li class="list-group-item small">{{ entry }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

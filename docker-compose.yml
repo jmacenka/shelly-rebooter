@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  shelly-rebooter:
+    build: .
+    container_name: shelly-rebooter
+    ports:
+      - "${PORT}:${PORT}"
+    restart: unless-stopped
