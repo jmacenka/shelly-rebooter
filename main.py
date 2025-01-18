@@ -41,7 +41,7 @@ class Config:
     max_attempts: int = 10
     total_duration: int = 7200  # in seconds (default 02:00 hours)
     check_interval: int = 30    # in seconds
-    wait_time: int = 10         # in seconds after reboot before checking connectivity
+    wait_time: int = 120        # in seconds after reboot before checking connectivity
     shelly_ip: str = os.getenv("SHELLY_IP", "192.168.1.100")
     twilio_to_number: str = os.getenv("TWILIO_TO_NUMBER", "+0987654321")
 
