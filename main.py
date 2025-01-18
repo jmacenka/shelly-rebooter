@@ -41,7 +41,7 @@ class Config:
     max_attempts: int = 10
     total_duration: int = 7200  # in seconds (default 02:00 hours)
     check_interval: int = 30    # in seconds
-    wait_time: int = 10         # in seconds after reboot before checking connectivity
+    wait_time: int = 120         # in seconds after reboot before checking connectivity
     shelly_ip: str = os.getenv("SHELLY_IP", "192.168.1.100")
     twilio_to_number: str = os.getenv("TWILIO_TO_NUMBER", "+0987654321")
 
@@ -68,20 +68,26 @@ async def is_internet_up() -> bool:
         return False
 
 def trigger_reboot_via_shelly():
-    """Send the reboot command sequence to the Shelly plug."""
+    """Send the reboot command sequence to the Shelly plug, using HTTP basic authentication if credentials are provided."""
     shelly_base_url = f"http://{Config.shelly_ip}"
+    # Read additional credentials from the environment.
+    shelly_user = os.getenv("SHELLY_USER")
+    shelly_pass = os.getenv("SHELLY_PASS")
+    auth_tuple = (shelly_user, shelly_pass) if shelly_user and shelly_pass else None
+
     try:
         add_log("Turning OFF the Shelly plug to cut power to the Vodafone Station.")
-        r_off = requests.get(f"{shelly_base_url}/relay/0?turn=off", timeout=10)
+        r_off = requests.get(f"{shelly_base_url}/relay/0?turn=off", timeout=10, auth=auth_tuple)
         r_off.raise_for_status()
         import time
         time.sleep(10)  # Wait 10 seconds before turning it back on.
         add_log("Turning ON the Shelly plug to power up the Vodafone Station.")
-        r_on = requests.get(f"{shelly_base_url}/relay/0?turn=on", timeout=10)
+        r_on = requests.get(f"{shelly_base_url}/relay/0?turn=on", timeout=10, auth=auth_tuple)
         r_on.raise_for_status()
         add_log("Shelly plug reboot sequence issued successfully.")
     except Exception as ex:
         add_log(f"Error communicating with Shelly plug: {ex}")
+
 
 async def reboot_sequence():
     add_log("Starting reboot sequence.")

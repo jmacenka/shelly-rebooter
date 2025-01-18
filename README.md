@@ -1,85 +1,81 @@
-# Shelly Rebooter
+# Shelly Rebooter (Immediate Reload Edition)
 
-This project is a containerized automation and monitoring solution built with FastAPI. It automatically reboots your Vodafone Station using a Shelly Smartplug S when Internet connectivity is lost. Key features include:
+This project is a containerized automation and monitoring solution built with FastAPI. It automatically reboots your Vodafone Station using a Shelly Smartplug S when Internet connectivity is lost. Key features:
 
-- **Connectivity Monitoring:** Pings 8.8.8.8 periodically to detect outages.
-- **Automated Reboot:** Power-cycles the Shelly Smartplug S if connectivity is lost.
-- **Manual Reboot:** Provides a web UI button to manually trigger a reboot.
-- **Configurable Parameters:** Update the following via the web dashboard:
-  - **Max Attempts**
-  - **Total Duration** (entered as **hh:mm**)
-  - **Check Interval** (in seconds)
-  - **Wait Time After Reboot** (in seconds)
-  - **Shelly IP**
-  - **Twilio To Number**
-- **SMS Notifications via Twilio:** SMS notifications are sent when:
-  - The first reboot attempt is made ("Rebooting attempted: first attempt to restore connectivity.")
-  - Connectivity is restored after a reboot ("Successful reboot: connectivity restored.")
-  - The maximum number of reboot attempts is reached or the total duration is exceeded.
-- **Offline Web Resources:** Local copies of Bootstrap assets enable operation without an active Internet connection.
-- **Environment Variables:** Sensitive settings (including the Shelly IP, PORT, and Twilio credentials) are loaded from a **.env** file. A template is provided as **.env.TEMPLATE**.
-- **Containerized Deployment:** Fully containerized using Docker with Docker Compose support. The PORT setting (from the **.env** file) is respected in both the Dockerfile and the docker-compose configuration.
+- **Environment Reload:** Changes made via the web UI are written to \`.env\` **and** immediately reloaded (no container restart needed).
+- **Three Consecutive Failures** needed to trigger a reboot sequence.
+- **Wait Time after Reboot**: Default 180 seconds, configured in \`.env\`.
+- **Detailed Reconnection Notification**:  
+  "Connectivity re-established after X seconds, with Y reboot attempt(s)."
+- **Disk-Based Logs** in \`logs/shelly-rebooter.log\` + in-memory logs for the UI.
+- **Volumes for .env & logs** in Docker, so you can edit .env or view logs directly on the host.
+- **Refactored Code** in \`app/\` folder.
 
 ## Project Structure
 
-```
+\`\`\`
 shelly-rebooter/
+├── app/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── core.py
+│   ├── logging_handler.py
+│   ├── main.py
+│   └── routes.py
+├── logs/
+│   └── shelly-rebooter.log
+├── templates/
+│   └── index.html
+├── static/
+│   ├── css/bootstrap.min.css
+│   └── js/bootstrap.bundle.min.js
+├── .env
+├── .env.TEMPLATE
+├── .gitignore
 ├── Dockerfile
 ├── docker-compose.yml
-├── init_project.sh
-├── main.py
 ├── requirements.txt
-├── .env            # Sensitive configuration (ignored by Git)
-├── .env.TEMPLATE   # Template for environment variables
-├── .gitignore
-├── README.md
-├── static/
-│   ├── css/
-│   │   └── bootstrap.min.css
-│   └── js/
-│       └── bootstrap.bundle.min.js
-└── templates/
-    └── index.html
-```
+├── service_setup.sh
+└── README.md
+\`\`\`
 
-## Setup and Installation
+## Getting Started
 
-1. **Clone the Repository:**
-
-   ```bash
+1. **Clone & Run Initialization Script**  
+   \`\`\`bash
    git clone https://github.com/yourusername/shelly-rebooter.git
    cd shelly-rebooter
-   ```
-
-2. **Initialize the Project:**
-
-   Run the initialization script to create the necessary folders, download local assets, and set up environment variable files:
-
-   ```bash
    ./init_project.sh
-   ```
+   \`\`\`
 
-3. **Update Environment Variables:**
+2. **Configure \`.env\`**  
+   Edit the newly created \`.env\` or use \`.env.TEMPLATE\`. Adjust:
+   - \`MAX_ATTEMPTS\`, \`TOTAL_DURATION\` (in seconds), \`WAIT_TIME\`, \`CHECK_INTERVAL\`, \`SHELLY_IP\`, etc.
+   - Twilio credentials if you want SMS notifications.
 
-   Edit the **.env** file (or copy **.env.TEMPLATE** to **.env** and modify) to set your Shelly Smartplug IP, the app port, and your Twilio credentials.
+3. **Local Development**  
+   \`\`\`bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   uvicorn app.main:app --host 0.0.0.0 --port 80
+   \`\`\`
 
-4. **Build and Run with Docker Compose:**
-
-   ```bash
+4. **Docker Deployment**  
+   - Your \`.env\` file and \`logs/\` are mounted as volumes. This means you can edit \`.env\` locally to update settings, and the logs are persisted on the host.  
+   \`\`\`bash
    docker-compose up -d
-   ```
+   \`\`\`
 
-5. **Access the Web UI:**
+5. **Systemd Setup (Non-Docker)**  
+   \`\`\`bash
+   sudo ./service_setup.sh
+   \`\`\`
+   This script creates a dedicated user \`shelly-rebooter\` and writes a systemd unit. Follow the instructions to finalize the deployment in \`/opt/shelly-rebooter\`.
 
-   Open your browser and navigate to [http://localhost:${PORT}](http://localhost:${PORT}) (or use your container/LXC IP) to access the dashboard.
-
-## Local Development
-
-For local development, you can run the FastAPI server directly:
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port ${PORT}
-```
+6. **Access the Web Dashboard**  
+   Navigate to [http://localhost:80](http://localhost:80) (or your chosen \`PORT\`) to view logs, edit configuration, and manually trigger a reboot.
 
 ## License
 

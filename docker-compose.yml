@@ -7,3 +7,6 @@ services:
     ports:
       - "${PORT}:${PORT}"
     restart: unless-stopped
+    volumes:
+      - ./.env:/app/.env
+      - ./logs:/app/logs

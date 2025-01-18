@@ -15,7 +15,7 @@
     <div class="card-header">Current Configuration</div>
     <div class="card-body">
       <form action="/update-config" method="post">
-        <!-- Row 1: Maximum Attempts and Total Duration -->
+        <!-- Row 1: MAX_ATTEMPTS and TOTAL_DURATION -->
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="max_attempts" class="form-label">Max Attempts</label>
@@ -23,29 +23,34 @@
           </div>
           <div class="col-md-6">
             <label for="total_duration_str" class="form-label">Total Duration (hh:mm)</label>
-            <input type="text" class="form-control" name="total_duration_str" id="total_duration_str" value="{{ total_duration_str }}" placeholder="e.g., 02:00" required>
+            <input type="text" class="form-control" name="total_duration_str" id="total_duration_str"
+                   value="{{ total_duration_str }}" placeholder="e.g., 02:00" required>
           </div>
         </div>
-        <!-- Row 2: Check Interval and Wait Time -->
+        <!-- Row 2: CHECK_INTERVAL and WAIT_TIME -->
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="check_interval" class="form-label">Check Interval (sec)</label>
-            <input type="number" class="form-control" name="check_interval" id="check_interval" value="{{ config.check_interval }}" required>
+            <input type="number" class="form-control" name="check_interval" id="check_interval"
+                   value="{{ config.check_interval }}" required>
           </div>
           <div class="col-md-6">
             <label for="wait_time" class="form-label">Wait Time After Reboot (sec)</label>
-            <input type="number" class="form-control" name="wait_time" id="wait_time" value="{{ config.wait_time }}" required>
+            <input type="number" class="form-control" name="wait_time" id="wait_time"
+                   value="{{ config.wait_time }}" required>
           </div>
         </div>
-        <!-- Row 3: Shelly IP and Twilio To Number -->
+        <!-- Row 3: SHELLY_IP and TWILIO_TO_NUMBER -->
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="shelly_ip" class="form-label">Shelly IP</label>
-            <input type="text" class="form-control" name="shelly_ip" id="shelly_ip" value="{{ config.shelly_ip }}" required>
+            <input type="text" class="form-control" name="shelly_ip" id="shelly_ip"
+                   value="{{ config.shelly_ip }}" required>
           </div>
           <div class="col-md-6">
             <label for="twilio_to_number" class="form-label">Twilio To Number</label>
-            <input type="text" class="form-control" name="twilio_to_number" id="twilio_to_number" value="{{ config.twilio_to_number }}" required>
+            <input type="text" class="form-control" name="twilio_to_number" id="twilio_to_number"
+                   value="{{ config.twilio_to_number }}" required>
           </div>
         </div>
         <button type="submit" class="btn btn-primary mt-3">Update Config</button>
