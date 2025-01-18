@@ -14,7 +14,12 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Include routes from routes.py
+# Serve the favicon from /static automatically
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return StaticFiles(directory="static").lookup_path("favicon.ico")[0]
+
+# Include routes
 app.include_router(router)
 
 @app.on_event("startup")
@@ -38,4 +43,11 @@ def dashboard(request: Request):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=settings.port, reload=True)
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=settings.port,
+        reload=True,
+        ssl_certfile=settings.ssl_certfile,
+        ssl_keyfile=settings.ssl_keyfile
+    )

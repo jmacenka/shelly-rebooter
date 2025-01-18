@@ -31,7 +31,11 @@ User=$SERVICE_USER
 Group=$SERVICE_USER
 WorkingDirectory=/opt/shelly-rebooter
 EnvironmentFile=/opt/shelly-rebooter/.env
-ExecStart=/opt/shelly-rebooter/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port \${PORT:-80}
+ExecStart=/opt/shelly-rebooter/venv/bin/uvicorn app.main:app \
+  --host 0.0.0.0 \
+  --port \${PORT:-443} \
+  --ssl-certfile \${SSL_CERTFILE:-/opt/shelly-rebooter/certs/cert.pem} \
+  --ssl-keyfile \${SSL_KEYFILE:-/opt/shelly-rebooter/certs/key.pem}
 Restart=always
 RestartSec=5
 
@@ -50,7 +54,7 @@ echo "  1) sudo mkdir -p /opt/shelly-rebooter"
 echo "  2) sudo chown -R $SERVICE_USER:$SERVICE_USER /opt/shelly-rebooter"
 echo "  3) cd /opt/shelly-rebooter && python3 -m venv venv"
 echo "  4) source venv/bin/activate && pip install -r requirements.txt"
-echo "  5) (Optional) Move/copy .env and logs/ into /opt/shelly-rebooter"
+echo "  5) (Optional) Move/copy .env, logs/, certs/ into /opt/shelly-rebooter"
 echo ""
 echo "When everything is in place, enable and start the service:"
 echo "  sudo systemctl daemon-reload"

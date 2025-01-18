@@ -38,6 +38,10 @@ def send_sms(message: str):
         add_log(f"Error sending SMS: {e}", level=40)
 
 async def is_internet_up() -> bool:
+    """
+    Checks connectivity by calling ping.
+    We install iputils-ping in the Docker image so this command is available.
+    """
     try:
         subprocess.run(["ping", "-c", "2", "8.8.8.8"],
                        stdout=subprocess.DEVNULL,

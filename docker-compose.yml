@@ -5,8 +5,9 @@ services:
     build: .
     container_name: shelly-rebooter
     ports:
-      - "${PORT}:${PORT}"
+      - "${PORT:-443}:${PORT:-443}"
     restart: unless-stopped
     volumes:
       - ./.env:/app/.env
       - ./logs:/app/logs
+      - ./certs:/app/certs
