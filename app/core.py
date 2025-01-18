@@ -113,7 +113,7 @@ async def connectivity_monitor():
             if fail_count > 0:
                 add_log("Internet connectivity check succeeded. Resetting fail count.")
             fail_count = 0
-            add_log("Internet connectivity OK.")
+            # add_log("Internet connectivity OK.") # Disabled logging of successfull internet-is-up monitor actions
         else:
             fail_count += 1
             add_log(f"Connectivity failed (count={fail_count}).")
