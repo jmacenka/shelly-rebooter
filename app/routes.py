@@ -1,6 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, Form
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from dotenv import set_key
+import os
 
 from app.config import settings
 from app.logging_handler import add_log
@@ -48,3 +49,9 @@ async def manual_reboot(background_tasks: BackgroundTasks):
     add_log("Manual reboot triggered via Web UI.")
     background_tasks.add_task(reboot_sequence)
     return RedirectResponse("/", status_code=303)
+
+@router.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    # Adjust path if your static/ folder is elsewhere
+    favicon_path = os.path.join("static", "favicon.ico")
+    return FileResponse(favicon_path)
