@@ -114,6 +114,7 @@ async def connectivity_monitor():
     add_log("Starting connectivity monitor.")
     fail_count = 0
     while True:
+<<<<<<< HEAD
         # If disabled or snoozed, skip checks
         now = datetime.datetime.now()
         if not settings.enabled:
@@ -121,6 +122,13 @@ async def connectivity_monitor():
         elif snooze_until and now < snooze_until:
             time_left = (snooze_until - now).total_seconds()
             add_log(f"Snooze active for {int(time_left)} more seconds. Skipping checks.")
+=======
+        if await is_internet_up():
+            if fail_count > 0:
+                add_log("Internet connectivity check succeeded. Resetting fail count.")
+            fail_count = 0
+            # add_log("Internet connectivity OK.") # Disabled logging of successfull internet-is-up monitor actions
+>>>>>>> 924d27db36f34e3b8d821cc734e746d2c9cad261
         else:
             # Normal check
             if await is_internet_up():
