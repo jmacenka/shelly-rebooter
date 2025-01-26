@@ -11,6 +11,20 @@
 <div class="container py-4">
   <h1 class="mb-4">Shelly Rebooter Dashboard</h1>
 
+  <!-- Controls for Enable/Disable and Snooze -->
+  <div class="d-flex flex-wrap justify-content-between mb-4">
+    <form action="/toggle-enabled" method="post" class="me-3">
+      {% if config.enabled %}
+      <button type="submit" class="btn btn-secondary">Disable Reboot Logic</button>
+      {% else %}
+      <button type="submit" class="btn btn-success">Enable Reboot Logic</button>
+      {% endif %}
+    </form>
+    <form action="/snooze" method="post">
+      <button type="submit" class="btn btn-info">Snooze for {{ config.snooze_duration }}s</button>
+    </form>
+  </div>
+
   <!-- Current Configuration -->
   <div class="card mb-4">
     <div class="card-header">Current Configuration</div>
@@ -20,7 +34,8 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="max_attempts" class="form-label">Max Attempts</label>
-            <input type="number" class="form-control" name="max_attempts" id="max_attempts" value="{{ config.max_attempts }}" required>
+            <input type="number" class="form-control" name="max_attempts" id="max_attempts"
+                   value="{{ config.max_attempts }}" required>
           </div>
           <div class="col-md-6">
             <label for="total_duration_str" class="form-label">Total Duration (hh:mm)</label>

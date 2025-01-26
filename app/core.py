@@ -9,6 +9,9 @@ from twilio.rest import Client
 from app.config import settings
 from app.logging_handler import add_log
 
+# Global in-memory store for snooze
+snooze_until = None
+
 def send_sms(message: str):
     try:
         ip = subprocess.check_output(["hostname", "-I"]).decode().strip().split()[0]
@@ -40,7 +43,7 @@ def send_sms(message: str):
 async def is_internet_up() -> bool:
     """
     Checks connectivity by calling ping.
-    We install iputils-ping in the Docker image so this command is available.
+    Make sure iputils-ping is installed in the container/host.
     """
     try:
         subprocess.run(["ping", "-c", "2", "8.8.8.8"],
@@ -106,19 +109,38 @@ async def reboot_sequence():
     send_sms("Maximum number of reboot attempts reached, connectivity not restored.")
 
 async def connectivity_monitor():
+    global snooze_until
+
     add_log("Starting connectivity monitor.")
     fail_count = 0
     while True:
-        if await is_internet_up():
-            if fail_count > 0:
-                add_log("Internet connectivity check succeeded. Resetting fail count.")
-            fail_count = 0
-            add_log("Internet connectivity OK.")
+        # If disabled or snoozed, skip checks
+        now = datetime.datetime.now()
+        if not settings.enabled:
+            add_log("Reboot logic is disabled. Skipping checks.")
+        elif snooze_until and now < snooze_until:
+            time_left = (snooze_until - now).total_seconds()
+            add_log(f"Snooze active for {int(time_left)} more seconds. Skipping checks.")
         else:
-            fail_count += 1
-            add_log(f"Connectivity failed (count={fail_count}).")
-            if fail_count >= 3:
-                add_log("3 consecutive fails -> triggering reboot sequence.")
-                asyncio.create_task(reboot_sequence())
+            # Normal check
+            if await is_internet_up():
+                if fail_count > 0:
+                    add_log("Internet connectivity check succeeded. Resetting fail count.")
                 fail_count = 0
+                add_log("Internet connectivity OK.")
+            else:
+                fail_count += 1
+                add_log(f"Connectivity failed (count={fail_count}).")
+                if fail_count >= 3:
+                    add_log("3 consecutive fails -> triggering reboot sequence.")
+                    asyncio.create_task(reboot_sequence())
+                    fail_count = 0
         await asyncio.sleep(settings.check_interval)
+
+def snooze_for(duration_seconds: int):
+    """
+    Sets snooze_until to now + duration_seconds
+    """
+    global snooze_until
+    snooze_until = datetime.datetime.now() + datetime.timedelta(seconds=duration_seconds)
+    add_log(f"Reboot logic snoozed for {duration_seconds} seconds.")
