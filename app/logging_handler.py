@@ -13,10 +13,8 @@ def load_existing_logs():
     if os.path.isfile(log_path):
         with open(log_path, "r") as f:
             lines = f.readlines()
-        # Keep only last 200 lines
         last_lines = lines[-200:]
         for line in last_lines:
-            # Remove trailing newlines
             IN_MEMORY_LOGS.append(line.rstrip())
 
 def create_logger():
@@ -44,7 +42,6 @@ def create_logger():
         console_handler.setFormatter(file_format)
         logger.addHandler(console_handler)
 
-        # Load logs on first creation
         load_existing_logs()
 
     return logger
@@ -52,11 +49,7 @@ def create_logger():
 LOGGER = create_logger()
 
 def add_log(message: str, level=logging.INFO):
-    """
-    Log a message to file and also store it in memory for the UI.
-    """
     LOGGER.log(level, message)
     IN_MEMORY_LOGS.append(message)
-    # Cap in-memory logs at 200 entries
     if len(IN_MEMORY_LOGS) > 200:
         del IN_MEMORY_LOGS[0]

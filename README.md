@@ -1,51 +1,48 @@
-# Shelly Rebooter
+# Shelly Rebooter – Extended Rate Limit + Enable/Disable
 
-This project is a containerized automation and monitoring solution built with FastAPI. It reboots your Vodafone Station via a Shelly Smartplug S when Internet connectivity fails. **Key updates**:
+This project is a containerized FastAPI solution that reboots your Vodafone Station via a Shelly Smartplug S upon repeated connectivity failures. **New features**:
 
-- **Fixed** `ping` not found by installing `iputils-ping` in Docker.
-- **Self-signed SSL** – Running on port 443 by default (`.env` configurable).
-- **Immediate Config Reload** – Any updates to `.env` via the web UI are immediately loaded.
-- **Disk-based Logs** – Written to `./logs/shelly-rebooter.log`, shown on the UI.
-- **Volumes** for `.env`, `logs`, `certs` in Docker Compose.
+- **Enable/Disable Switch**: A button to manually turn all automatic reboots on/off.
+- **Reboot Rate Limit**: If 5 reboots occur within 2 hours, the system automatically pauses all reboots for 20 hours.
+- **HTTPS**: Self-signed cert, running on port 443 by default (see \`.env\`).
+- **Disk-based Logs**: \`logs/shelly-rebooter.log\`, loaded on startup for UI display.
+- **Docker**: A \`docker-compose.yml\` that volume-mounts \`.env\`, \`logs/\`, and \`certs/\`.
 
-## Usage
+## Key Points
 
-1. **Clone & Init**  
-   ```bash
+1. **5 reboots in 2 hours** ⇒ **pause 20 hours**  
+   During that pause, no automatic reboots occur unless manually triggered.
+2. **Enable/Disable Switch**  
+   If disabled, the app ignores connectivity failures.
+3. **Local \`.env\`**  
+   Edit to change default wait time, maximum attempts, or port.
+4. **Self-Signed SSL**  
+   The Docker container starts on \`https://0.0.0.0:443\`.
+   Browsers may warn about the untrusted certificate.
+
+## Setup
+
+1. **Clone & Run This Script**  
+   \`\`\`bash
    git clone https://github.com/yourusername/shelly-rebooter.git
    cd shelly-rebooter
-   ```
-
-2. **Configure `.env`**  
-   Adjust `PORT=443`, `WAIT_TIME=180`, etc.
-
-3. **Local Dev**  
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   uvicorn app.main:app --host 0.0.0.0 --port 443 \
-     --ssl-certfile certs/cert.pem \
-     --ssl-keyfile certs/key.pem
-   ```
-
-4. **Docker Compose**  
-   ```bash
+   ./init_project.sh
+   \`\`\`
+2. **Adjust \`.env\`**  
+   e.g., set \`ENABLED=false\` if you want to disable reboots initially.
+3. **Docker**  
+   \`\`\`
    docker-compose up -d
-   ```
-   All changes in `.env`, logs in `logs/`, and certificates in `certs/` persist on the host.
-
-5. **Systemd**  
-   ```bash
+   \`\`\`
+4. **Systemd**  
+   \`\`\`
    sudo ./service_setup.sh
-   ```
-   Follow instructions to finalize setup in `/opt/shelly-rebooter`.
+   \`\`\`
+   Then follow instructions to finalize your system service at \`/opt/shelly-rebooter\`.
 
-6. **Access**  
-   Open [https://localhost:443](https://localhost:443). Browser may warn about the self-signed cert.
+5. **Access the App**  
+   \`https://<your-host-or-ip>:443\`. The certificate is self-signed, so you may have to bypass a security warning.
 
-## License
-
-This project is licensed under the MIT License.
+Enjoy your extended Shelly Rebooter solution!
 
 > Created by ChatGPT o1-min @ 14 Jan 2025

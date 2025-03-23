@@ -31,12 +31,15 @@ class Settings:
         self.ssl_certfile = os.getenv("SSL_CERTFILE", "/app/certs/cert.pem")
         self.ssl_keyfile = os.getenv("SSL_KEYFILE", "/app/certs/key.pem")
 
-        # Enabled/Disabled toggle (if previously patched for snooze/disable features)
+        # Enable/Disable switch
+        # If ENABLED=false, the entire reboot logic is turned off.
         enabled_str = os.getenv("ENABLED", "true").lower()
         self.enabled = (enabled_str not in ["false", "0", "no"])
 
-        # Snooze duration (in seconds); default 2h if not set
-        self.snooze_duration = int(os.getenv("SNOOZE_DURATION", 7200))
-
-# Create a global instance of Settings so other modules can import
-settings = Settings()
+        # 5 reboots in 2h => pause 20h
+        # We'll keep them as constants for now
+        self.reboot_rate_limit_count = 5
+        # 2 hours
+        self.reboot_rate_limit_window = 7200
+        # 20 hours
+        self.rate_limit_pause_duration = 72000

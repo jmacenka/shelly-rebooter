@@ -38,3 +38,6 @@ docker-compose.override.yml
 
 # Environment files (sensitive info)
 .env
+
+# Log files
+logs/shelly-rebooter.log

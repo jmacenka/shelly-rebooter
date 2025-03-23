@@ -46,17 +46,15 @@ SERVICE_EOF
 echo "Service file created at ${SERVICE_FILE}"
 echo "If you need a different user or path, edit '${SERVICE_FILE}' accordingly."
 
-# Additional instructions for the admin
+# Additional instructions
 echo "--------------------------------------------------------------------------"
-echo "To complete the setup, place your application under /opt/shelly-rebooter,"
-echo "create a Python virtual environment there (venv), and install dependencies:"
+echo "Place your application in /opt/shelly-rebooter, create a virtualenv, etc."
 echo "  1) sudo mkdir -p /opt/shelly-rebooter"
 echo "  2) sudo chown -R $SERVICE_USER:$SERVICE_USER /opt/shelly-rebooter"
 echo "  3) cd /opt/shelly-rebooter && python3 -m venv venv"
 echo "  4) source venv/bin/activate && pip install -r requirements.txt"
-echo "  5) (Optional) Move/copy .env, logs/, certs/ into /opt/shelly-rebooter"
-echo ""
-echo "When everything is in place, enable and start the service:"
+echo "  5) (Optional) Copy .env, logs, certs into /opt/shelly-rebooter"
+echo "Then run:"
 echo "  sudo systemctl daemon-reload"
 echo "  sudo systemctl enable shelly-rebooter.service"
 echo "  sudo systemctl start shelly-rebooter.service"

@@ -9,8 +9,10 @@ from twilio.rest import Client
 from app.config import settings
 from app.logging_handler import add_log
 
-# Global in-memory store for snooze
-snooze_until = None
+# Track reboots to see if we exceed 5 in a 2-hour window
+reboot_timestamps = []
+# If we exceed the rate limit, we "pause" for 20h
+pause_until = None
 
 def send_sms(message: str):
     try:
@@ -74,6 +76,15 @@ def trigger_reboot_via_shelly():
         add_log(f"Error turning ON Shelly plug: {ex}", level=40)
 
 async def reboot_sequence():
+    global reboot_timestamps
+
+    # If we are already paused, skip
+    now = datetime.datetime.now()
+    if pause_until and now < pause_until:
+        time_left = (pause_until - now).total_seconds()
+        add_log(f"Rate-limit pause is in effect for {int(time_left)} more seconds. Skipping reboot.")
+        return
+
     add_log("Starting reboot sequence.")
     sms_first_sent = False
     sequence_start = datetime.datetime.now()
@@ -94,6 +105,21 @@ async def reboot_sequence():
 
         trigger_reboot_via_shelly()
 
+        # Mark this reboot in our timestamps
+        now = datetime.datetime.now()
+        reboot_timestamps.append(now)
+        # Clean out any older than 2h from the list
+        cutoff = now - datetime.timedelta(seconds=settings.reboot_rate_limit_window)
+        reboot_timestamps = [t for t in reboot_timestamps if t > cutoff]
+
+        # Check if we exceed the limit
+        if len(reboot_timestamps) >= settings.reboot_rate_limit_count:
+            # Pause for 20h
+            global pause_until
+            pause_until = now + datetime.timedelta(seconds=settings.rate_limit_pause_duration)
+            add_log(f"Reached {settings.reboot_rate_limit_count} reboots in 2h. Pausing for 20h.")
+            break
+
         await asyncio.sleep(settings.wait_time)
         if await is_internet_up():
             end_time = datetime.datetime.now()
@@ -109,26 +135,19 @@ async def reboot_sequence():
     send_sms("Maximum number of reboot attempts reached, connectivity not restored.")
 
 async def connectivity_monitor():
-    global snooze_until
+    global pause_until
 
     add_log("Starting connectivity monitor.")
     fail_count = 0
     while True:
-<<<<<<< HEAD
-        # If disabled or snoozed, skip checks
         now = datetime.datetime.now()
+        # If disabled, skip
         if not settings.enabled:
-            add_log("Reboot logic is disabled. Skipping checks.")
-        elif snooze_until and now < snooze_until:
-            time_left = (snooze_until - now).total_seconds()
-            add_log(f"Snooze active for {int(time_left)} more seconds. Skipping checks.")
-=======
-        if await is_internet_up():
-            if fail_count > 0:
-                add_log("Internet connectivity check succeeded. Resetting fail count.")
-            fail_count = 0
-            # add_log("Internet connectivity OK.") # Disabled logging of successfull internet-is-up monitor actions
->>>>>>> 924d27db36f34e3b8d821cc734e746d2c9cad261
+            add_log("Reboot logic disabled. Skipping checks.")
+        # If paused, skip
+        elif pause_until and now < pause_until:
+            time_left = (pause_until - now).total_seconds()
+            add_log(f"Rate-limit pause is in effect for {int(time_left)} more seconds. Skipping checks.")
         else:
             # Normal check
             if await is_internet_up():
@@ -144,11 +163,3 @@ async def connectivity_monitor():
                     asyncio.create_task(reboot_sequence())
                     fail_count = 0
         await asyncio.sleep(settings.check_interval)
-
-def snooze_for(duration_seconds: int):
-    """
-    Sets snooze_until to now + duration_seconds
-    """
-    global snooze_until
-    snooze_until = datetime.datetime.now() + datetime.timedelta(seconds=duration_seconds)
-    add_log(f"Reboot logic snoozed for {duration_seconds} seconds.")

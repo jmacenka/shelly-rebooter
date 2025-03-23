@@ -1,11 +1,10 @@
 from fastapi import APIRouter, BackgroundTasks, Form
 from fastapi.responses import RedirectResponse
 from dotenv import set_key
-import datetime
 
 from app.config import settings
 from app.logging_handler import add_log
-from app.core import reboot_sequence, snooze_for
+from app.core import reboot_sequence
 
 router = APIRouter()
 
@@ -41,7 +40,6 @@ async def update_config(
 
     # Re-initialize settings from .env
     settings.__init__()
-
     return RedirectResponse("/", status_code=303)
 
 @router.post("/toggle-enabled")
@@ -50,13 +48,6 @@ async def toggle_enabled():
     set_key(".env", "ENABLED", str(new_value).lower())
     add_log(f"Enabled toggled to {new_value}.")
     settings.__init__()
-    return RedirectResponse("/", status_code=303)
-
-@router.post("/snooze")
-async def snooze():
-    # Use the SNOOZE_DURATION from .env
-    snooze_duration = settings.snooze_duration
-    snooze_for(snooze_duration)
     return RedirectResponse("/", status_code=303)
 
 @router.post("/manual-reboot")

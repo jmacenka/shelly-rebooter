@@ -11,17 +11,14 @@
 <div class="container py-4">
   <h1 class="mb-4">Shelly Rebooter Dashboard</h1>
 
-  <!-- Controls for Enable/Disable and Snooze -->
+  <!-- Enable/Disable Switch -->
   <div class="d-flex flex-wrap justify-content-between mb-4">
-    <form action="/toggle-enabled" method="post" class="me-3">
+    <form action="/toggle-enabled" method="post">
       {% if config.enabled %}
       <button type="submit" class="btn btn-secondary">Disable Reboot Logic</button>
       {% else %}
       <button type="submit" class="btn btn-success">Enable Reboot Logic</button>
       {% endif %}
-    </form>
-    <form action="/snooze" method="post">
-      <button type="submit" class="btn btn-info">Snooze for {{ config.snooze_duration }}s</button>
     </form>
   </div>
 
