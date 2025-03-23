@@ -76,6 +76,7 @@ def trigger_reboot_via_shelly():
         add_log(f"Error turning ON Shelly plug: {ex}", level=40)
 
 async def reboot_sequence():
+    global pause_until
     global reboot_timestamps
 
     # If we are already paused, skip
@@ -115,7 +116,6 @@ async def reboot_sequence():
         # Check if we exceed the limit
         if len(reboot_timestamps) >= settings.reboot_rate_limit_count:
             # Pause for 20h
-            global pause_until
             pause_until = now + datetime.timedelta(seconds=settings.rate_limit_pause_duration)
             add_log(f"Reached {settings.reboot_rate_limit_count} reboots in 2h. Pausing for 20h.")
             break
@@ -147,7 +147,7 @@ async def connectivity_monitor():
         # If paused, skip
         elif pause_until and now < pause_until:
             time_left = (pause_until - now).total_seconds()
-            add_log(f"Rate-limit pause is in effect for {int(time_left)} more seconds. Skipping checks.")
+            add_log(f"Rate-limit pause in effect for {int(time_left)} more seconds. Skipping checks.")
         else:
             # Normal check
             if await is_internet_up():

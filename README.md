@@ -1,35 +1,24 @@
-# Shelly Rebooter – Extended Rate Limit + Enable/Disable
+# Shelly Rebooter – Final Comprehensive Edition
 
-This project is a containerized FastAPI solution that reboots your Vodafone Station via a Shelly Smartplug S upon repeated connectivity failures. **New features**:
+This project is a containerized FastAPI solution that monitors Internet connectivity and reboots your Vodafone Station using a Shelly Smartplug S. **Features**:
 
-- **Enable/Disable Switch**: A button to manually turn all automatic reboots on/off.
-- **Reboot Rate Limit**: If 5 reboots occur within 2 hours, the system automatically pauses all reboots for 20 hours.
-- **HTTPS**: Self-signed cert, running on port 443 by default (see \`.env\`).
-- **Disk-based Logs**: \`logs/shelly-rebooter.log\`, loaded on startup for UI display.
-- **Docker**: A \`docker-compose.yml\` that volume-mounts \`.env\`, \`logs/\`, and \`certs/\`.
+1. **Self-Signed SSL** on **port 443** (default).
+2. **Disk-Based Logging** persisted to \`logs/shelly-rebooter.log\`, loaded on startup for UI display.
+3. **Enable/Disable Switch**: Manually turn on/off the entire reboot logic.
+4. **Rate-Limit**: If **5** reboots occur within **2 hours**, **pause** automatic reboots for **20 hours** (manual reboots still possible).
+5. **Docker**: \`docker-compose.yml\` volume-mounts \`.env\`, \`logs/\`, and \`certs/\`.
+6. **Systemd**: \`service_setup.sh\` for non-Docker deployment.
 
-## Key Points
+## Usage
 
-1. **5 reboots in 2 hours** ⇒ **pause 20 hours**  
-   During that pause, no automatic reboots occur unless manually triggered.
-2. **Enable/Disable Switch**  
-   If disabled, the app ignores connectivity failures.
-3. **Local \`.env\`**  
-   Edit to change default wait time, maximum attempts, or port.
-4. **Self-Signed SSL**  
-   The Docker container starts on \`https://0.0.0.0:443\`.
-   Browsers may warn about the untrusted certificate.
-
-## Setup
-
-1. **Clone & Run This Script**  
-   \`\`\`bash
+1. **Clone & Run**  
+   \`\`\`
    git clone https://github.com/yourusername/shelly-rebooter.git
    cd shelly-rebooter
    ./init_project.sh
    \`\`\`
-2. **Adjust \`.env\`**  
-   e.g., set \`ENABLED=false\` if you want to disable reboots initially.
+2. **Review/Edit \`.env\`**  
+   - Set \`PORT=443\`, \`ENABLED=true\` or \`false\`, etc.
 3. **Docker**  
    \`\`\`
    docker-compose up -d
@@ -38,11 +27,12 @@ This project is a containerized FastAPI solution that reboots your Vodafone Stat
    \`\`\`
    sudo ./service_setup.sh
    \`\`\`
-   Then follow instructions to finalize your system service at \`/opt/shelly-rebooter\`.
+   Follow instructions to finalize your deployment.
+5. **Access**  
+   [https://localhost:443](https://localhost:443) (self-signed cert).
 
-5. **Access the App**  
-   \`https://<your-host-or-ip>:443\`. The certificate is self-signed, so you may have to bypass a security warning.
+## License
 
-Enjoy your extended Shelly Rebooter solution!
+This project is licensed under the MIT License.
 
 > Created by ChatGPT o1-min @ 14 Jan 2025

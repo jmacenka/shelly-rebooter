@@ -8,7 +8,7 @@ def _load_env():
 class Settings:
     """
     Loads configuration from environment variables and sets defaults.
-    Changes made via the FastAPI UI update .env and are reloaded immediately.
+    Changes made via the FastAPI UI or .env updates are reloaded immediately.
     """
     def __init__(self):
         _load_env()
@@ -32,14 +32,12 @@ class Settings:
         self.ssl_keyfile = os.getenv("SSL_KEYFILE", "/app/certs/key.pem")
 
         # Enable/Disable switch
-        # If ENABLED=false, the entire reboot logic is turned off.
         enabled_str = os.getenv("ENABLED", "true").lower()
         self.enabled = (enabled_str not in ["false", "0", "no"])
 
-        # 5 reboots in 2h => pause 20h
-        # We'll keep them as constants for now
-        self.reboot_rate_limit_count = 5
-        # 2 hours
-        self.reboot_rate_limit_window = 7200
-        # 20 hours
-        self.rate_limit_pause_duration = 72000
+        # Rate-limit: 5 reboots in 2h => pause 20h
+        self.reboot_rate_limit_count = 5         # how many reboots
+        self.reboot_rate_limit_window = 7200     # 2h
+        self.rate_limit_pause_duration = 72000   # 20h
+
+settings = Settings()
