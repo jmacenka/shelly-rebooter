@@ -14,6 +14,9 @@ reboot_timestamps = []
 # If we exceed the rate limit, we "pause" for 20h
 pause_until = None
 
+# For manual snooze (2 hours by default, or SNOOZE_DURATION from .env)
+snooze_until = None
+
 def send_sms(message: str):
     try:
         ip = subprocess.check_output(["hostname", "-I"]).decode().strip().split()[0]
@@ -79,7 +82,7 @@ async def reboot_sequence():
     global pause_until
     global reboot_timestamps
 
-    # If we are already paused, skip
+    # If we are already paused by rate-limit, skip
     now = datetime.datetime.now()
     if pause_until and now < pause_until:
         time_left = (pause_until - now).total_seconds()
@@ -136,18 +139,24 @@ async def reboot_sequence():
 
 async def connectivity_monitor():
     global pause_until
+    global snooze_until
 
     add_log("Starting connectivity monitor.")
     fail_count = 0
     while True:
         now = datetime.datetime.now()
-        # If disabled, skip
+
+        # Check if disabled
         if not settings.enabled:
             add_log("Reboot logic disabled. Skipping checks.")
-        # If paused, skip
+        # Check if paused by rate-limit
         elif pause_until and now < pause_until:
             time_left = (pause_until - now).total_seconds()
-            add_log(f"Rate-limit pause in effect for {int(time_left)} more seconds. Skipping checks.")
+            add_log(f"Rate-limit pause is in effect for {int(time_left)} more seconds. Skipping checks.")
+        # Check if snoozed
+        elif snooze_until and now < snooze_until:
+            time_left = (snooze_until - now).total_seconds()
+            add_log(f"Snooze active for {int(time_left)} more seconds. Skipping checks.")
         else:
             # Normal check
             if await is_internet_up():
@@ -163,3 +172,8 @@ async def connectivity_monitor():
                     asyncio.create_task(reboot_sequence())
                     fail_count = 0
         await asyncio.sleep(settings.check_interval)
+
+def snooze_for(duration_seconds: int):
+    global snooze_until
+    snooze_until = datetime.datetime.now() + datetime.timedelta(seconds=duration_seconds)
+    add_log(f"Reboot logic snoozed for {duration_seconds} seconds.")

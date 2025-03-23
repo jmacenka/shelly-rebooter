@@ -36,8 +36,11 @@ class Settings:
         self.enabled = (enabled_str not in ["false", "0", "no"])
 
         # Rate-limit: 5 reboots in 2h => pause 20h
-        self.reboot_rate_limit_count = 5         # how many reboots
-        self.reboot_rate_limit_window = 7200     # 2h
-        self.rate_limit_pause_duration = 72000   # 20h
+        self.reboot_rate_limit_count = 5
+        self.reboot_rate_limit_window = 7200   # 2 hours
+        self.rate_limit_pause_duration = 72000 # 20 hours
+
+        # Snooze duration in seconds (default 2 hours = 7200)
+        self.snooze_duration = int(os.getenv("SNOOZE_DURATION", 7200))
 
 settings = Settings()

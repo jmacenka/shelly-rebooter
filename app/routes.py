@@ -4,7 +4,7 @@ from dotenv import set_key
 
 from app.config import settings
 from app.logging_handler import add_log
-from app.core import reboot_sequence
+from app.core import reboot_sequence, snooze_for
 
 router = APIRouter()
 
@@ -54,4 +54,10 @@ async def toggle_enabled():
 async def manual_reboot(background_tasks: BackgroundTasks):
     add_log("Manual reboot triggered via Web UI.")
     background_tasks.add_task(reboot_sequence)
+    return RedirectResponse("/", status_code=303)
+
+@router.post("/snooze")
+async def snooze():
+    # Use the SNOOZE_DURATION from .env
+    snooze_for(settings.snooze_duration)
     return RedirectResponse("/", status_code=303)
